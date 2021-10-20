@@ -31,19 +31,11 @@ vault kv put secret/prisma_enterprise_env \
 
 The above command will put your secrets into your dev vault server. To retrieve your keys you'll need one more tool on your system. JQ! 
 
-To install JQ:
+To install JQ, follow the [jq install step](https://stedolan.github.io/jq/download/) appropriate for your system.
 
-Ubuntu:
+Ubuntu example:
 ```bash 
 sudo apt-get install jq
-```
-RHEL:
-```bash
-yum install jq
-```
-MacOS:
-```bash
-brew install jq
 ```
 
 After installing jq, you'll want to test retrieving your secrets in a secure format. To do that, enter this in terminal:
@@ -70,14 +62,16 @@ The first line we'll type in our script is a she-bang. This ensures our script i
 #!/bin/bash
 ```
 
-Next we'll define our variables. 
+Next we'll define our variables inside our script.
+   
+Note, we are using mixed_CASE here so as not to be confused with environment or bash variables (typically UPPERCASE) plus these variables relate to the vault key names with the same name and we want to differentiate these variable names by using mixed_CASE.  For more explanation see this [stakoverflow article](https://stackoverflow.com/questions/673055/correct-bash-and-shell-script-variable-capitalization) 
 
 ```bash
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 ```
 
 The last variable we need to define for now is the payload variable.
