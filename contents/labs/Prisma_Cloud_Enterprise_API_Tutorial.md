@@ -100,11 +100,11 @@ Here's how we'll define the last variable for our script.
 ```bash 
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 
-pcee_auth_payload="{\"password\": \"$pcee_secretkey\", \"username\": \"$pcee_accesskey\"}"
+pcee_AUTH_PAYLOAD="{\"password\": \"$pcee_SECRET_KEY\", \"username\": \"$pcee_ACCESS_KEY\"}"
 ```
 
 Now we're ready to make our first api call using curl. 
@@ -118,11 +118,11 @@ _Note: the `#` comments out the line in bash. I'll use that indicate what I'm do
 ```bash
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 
-pcee_auth_payload="{\"password\": \"${pcee_secretkey}\", \"username\": \"${pcee_accesskey}\"}"
+pcee_AUTH_PAYLOAD="{\"password\": \"${pcee_SECRET_KEY}\", \"username\": \"${pcee_ACCESS_KEY}\"}"
 
 # HERE'S WHAT WE COPIED FROM THE DOCUMENTATION PAGE:
 
@@ -131,7 +131,7 @@ curl --request POST \
   --header 'content-type: application/json; charset=UTF-8'
 ```
 
-We'll need to change the request sample so it works with our script. First, we'll clean up the formatting and then replace the url with our `$pcee_api_url` variable + the api endpoint `/login`. 
+We'll need to change the request sample so it works with our script. First, we'll clean up the formatting and then replace the url with our `$pcee_API_URL` variable + the api endpoint `/login`. 
 
 
 _Note: the `\` is used to break the line for readability...but ultimately isn't necessary. When using a `\` it's important to be mindful of extra spaces after the `\`_
@@ -151,25 +151,25 @@ curl --request POST --url https://api.prismacloud.io/login --header 'content-typ
 
 _TIP: Sometimes it's easier to make it all one line and then add the `\` in as needed. This ensure's you don't have weird spacing issues when scripting._
 
-The last modification we'll need to add is the request body or data from our json payload. `--data ${pcee_auth_payload}`
+The last modification we'll need to add is the request body or data from our json payload. `--data ${pcee_AUTH_PAYLOAD}`
 
 Here's what your script should look like after we add the variables in and clean up the formatting:
 
 ```bash
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 
-pcee_auth_payload="{\"password\": \"$pcee_secretkey\", \"username\": \"$pcee_accesskey\"}"
+pcee_AUTH_PAYLOAD="{\"password\": \"$pcee_SECRET_KEY\", \"username\": \"$pcee_ACCESS_KEY\"}"
 
 # HERE'S WHAT WE COPIED FROM THE DOCUMENTATION PAGE:
 
 curl --request POST \
-     --url "${pcee_api_url}/login" \
+     --url "${pcee_API_URL}/login" \
      --header 'content-type: application/json; charset=UTF-8' \
-     --data "${pcee_auth_payload}"
+     --data "${pcee_AUTH_PAYLOAD}"
 ```
 
 ## Step 3: Save your script and execute it!
@@ -215,35 +215,35 @@ bash prisma_api_test.sh | jq -r '.token'
 
 _Note: the `-r` removes the quotes._
 
-Now you have the TOKEN isolated! Perfect. Copy out the `| jq -r '.token'` from your terminal and edit your script again. We'll modify the script so it saves our first api call to another variable `$pcee_auth_token` which we'll then use in another api call.
+Now you have the TOKEN isolated! Perfect. Copy out the `| jq -r '.token'` from your terminal and edit your script again. We'll modify the script so it saves our first api call to another variable `$pcee_AUTH_TOKEN` which we'll then use in another api call.
 
-So we can observe what's happening let's go ahead and `echo` the variable `$pcee_auth_token` at the end of our script.
+So we can observe what's happening let's go ahead and `echo` the variable `$pcee_AUTH_TOKEN` at the end of our script.
 
 Let's re-open our script in nano: `nano prisma_api_test.sh`. 
 
-Our goal here is to assign the response to a variable named `$pcee_auth_token`. To do that we'll wrap our `curl` command in `$()` and then adjust the formatting for maintainability.
+Our goal here is to assign the response to a variable named `$pcee_AUTH_TOKEN`. To do that we'll wrap our `curl` command in `$()` and then adjust the formatting for maintainability.
 
-Finally, we'll add the `echo "${pcee_auth_token}"` to the end of our script so we can see that we've captured the JWT. 
+Finally, we'll add the `echo "${pcee_AUTH_TOKEN}"` to the end of our script so we can see that we've captured the JWT. 
 
 ```bash
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 
-pcee_auth_payload="{\"password\": \"$pcee_secretkey\", \"username\": \"$pcee_accesskey\"}"
+pcee_AUTH_PAYLOAD="{\"password\": \"$pcee_SECRET_KEY\", \"username\": \"$pcee_ACCESS_KEY\"}"
 
 # HERE'S WHAT WE COPIED FROM THE DOCUMENTATION PAGE:
 
-pcee_auth_token=$(curl --request POST \
-                       --url "${pcee_api_url}/login" \
+pcee_AUTH_TOKEN=$(curl --request POST \
+                       --url "${pcee_API_URL}/login" \
                        --header 'content-type: application/json; charset=UTF-8' \
-                       --data "${pcee_auth_payload}" | jq -r '.token')
+                       --data "${pcee_AUTH_PAYLOAD}" | jq -r '.token')
 
 # Check the output
 
-echo "${pcee_auth_token}"
+echo "${pcee_AUTH_TOKEN}"
 ```
 
 After your script looks like the code block above, hit `ctrl + x` then `y` on your keyboard to close and save the changes. 
@@ -296,7 +296,7 @@ curl --request GET \
   --header 'x-redlock-auth: REPLACE_KEY_VALUE'
 ```
 
-Better! But still not in a format we can use for our script. We'll need to replace the url with our `$pcee_api_url`, then assign the filters to acceptable values, and finally pass our `pcee_auth_token` in the `--header 'x-redlock-auth: REPLACE_KEY_VALUE'`
+Better! But still not in a format we can use for our script. We'll need to replace the url with our `$pcee_API_URL`, then assign the filters to acceptable values, and finally pass our `pcee_AUTH_TOKEN` in the `--header 'x-redlock-auth: REPLACE_KEY_VALUE'`
 
 _Tip: For some reason our documentation has everything with `'` quotes rather than `"` quotes. This will cause issues with variable expansion so keep an eye out for those pitfalls._
 
@@ -307,14 +307,14 @@ For our filters, we can see from the documentation page, what the acceptable val
 * For `timeUnit` we can choose either `"minute"`, `"hour"`, `"day"`, `"week"`, `"month"`, or `"year"`
 * For `detailed` we can either choose `"true"` or `"false"`
 
-Let's assume we want to show our customer that with our api script we're able to pull all the alerts from the last day and then feed them into a different system. For that to work, we'll assign the filter values in the api endpoint and finally paste it back into our script with the  `$pcee_api_url` and `$pcee_auth_token` variables. 
+Let's assume we want to show our customer that with our api script we're able to pull all the alerts from the last day and then feed them into a different system. For that to work, we'll assign the filter values in the api endpoint and finally paste it back into our script with the  `$pcee_API_URL` and `$pcee_AUTH_TOKEN` variables. 
 
 We'll also need to add a `--header` to define how we want the data returned. In this case, we'll add `--header 'Accept: application/json'`
 
 ```bash
 curl --request GET \
-     --url "${pcee_api_url}/v2/alert?timeType=relative&timeAmount=1&timeUnit=day&detailed=true" \
-     --header "x-redlock-auth: ${pcee_auth_token}" \
+     --url "${pcee_API_URL}/v2/alert?timeType=relative&timeAmount=1&timeUnit=day&detailed=true" \
+     --header "x-redlock-auth: ${pcee_AUTH_TOKEN}" \
      --header 'Accept: application/json'
 ```
 
@@ -329,24 +329,24 @@ After pasting the modified request back into the script and adding the `-s` to o
 ```bash
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 
-pcee_auth_payload="{\"password\": \"$pcee_secretkey\", \"username\": \"$pcee_accesskey\"}"
+pcee_AUTH_PAYLOAD="{\"password\": \"$pcee_SECRET_KEY\", \"username\": \"$pcee_ACCESS_KEY\"}"
 
 # NOTICE THE -s I've added to this call. This quiets the command
 
-pcee_auth_token=$(curl -s --request POST \
-                          --url "${pcee_api_url}/login" \
+pcee_AUTH_TOKEN=$(curl -s --request POST \
+                          --url "${pcee_API_URL}/login" \
                           --header 'content-type: application/json; charset=UTF-8' \
-                          --data "${pcee_auth_payload}" | jq -r '.token')
+                          --data "${pcee_AUTH_PAYLOAD}" | jq -r '.token')
 
 # HERE'S OUR MODIFIED REQUEST with an added -s 
 
 curl -s --request GET \
-        --url "${pcee_api_url}/v2/alert?timeType=relative&timeAmount=1&timeUnit=day&detailed=true" \
-        --header "x-redlock-auth: ${pcee_auth_token}"
+        --url "${pcee_API_URL}/v2/alert?timeType=relative&timeAmount=1&timeUnit=day&detailed=true" \
+        --header "x-redlock-auth: ${pcee_AUTH_TOKEN}"
 ```
 
 Okay, time to call our script again. Hit `ctrl + x` then `y` to save and exit. 
@@ -397,24 +397,24 @@ After you copy and paste your filter to the end of the `curl` command, it should
 ```bash
 #!/bin/bash
 
-pcee_api_url=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
-pcee_accesskey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
-pcee_secretkey=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
+pcee_API_URL=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_api_url)
+pcee_ACCESS_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_accesskey)
+pcee_SECRET_KEY=$(vault kv get -format=json secret/prisma_enterprise_env | jq -r .data.data.pcee_secretkey)
 
-pcee_auth_payload="{\"password\": \"$pcee_secretkey\", \"username\": \"$pcee_accesskey\"}"
+pcee_AUTH_PAYLOAD="{\"password\": \"$pcee_SECRET_KEY\", \"username\": \"$pcee_ACCESS_KEY\"}"
 
 # NOTICE THE -s I've added to this call. This quiets the command
 
-pcee_auth_token=$(curl -s --request POST \
-                          --url "${pcee_api_url}/login" \
+pcee_AUTH_TOKEN=$(curl -s --request POST \
+                          --url "${pcee_API_URL}/login" \
                           --header 'content-type: application/json; charset=UTF-8' \
-                          --data "${pcee_auth_payload}" | jq -r '.token')
+                          --data "${pcee_AUTH_PAYLOAD}" | jq -r '.token')
 
 # Check the filter! We copied in. Here's our api alert. 
 
 curl -s --request GET \
-        --url "${pcee_api_url}/v2/alert?timeType=relative&timeAmount=1&timeUnit=day&detailed=true" \
-        --header "x-redlock-auth: ${pcee_auth_token}" \
+        --url "${pcee_API_URL}/v2/alert?timeType=relative&timeAmount=1&timeUnit=day&detailed=true" \
+        --header "x-redlock-auth: ${pcee_AUTH_TOKEN}" \
         | jq '.items[] | {policyName: .policy.name, resourceApiName: .resource.resourceApiName, resourceTags: resource.resourceTags}'
 ```
 
